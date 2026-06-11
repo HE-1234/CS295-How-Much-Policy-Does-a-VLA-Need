@@ -1,0 +1,14 @@
+# Quarter-size policy transformer (1024d / 6L / 16h).
+# Pairs with transformer_410m.yaml (full) and transformer_205m.yaml (half) for
+# a clean depth-only ×½ / ×¼ scaling axis used in the policy-size ablation.
+# Naming follows policy-mode params (~77M when vocab_size is overridden to 0
+# via --model.transformer.vocab_size 0).
+type: transformer
+hidden_dim: 1024
+n_layers: 6
+n_heads: 16
+max_seq_len: 2048
+vocab_size: 50432
+post_embed_norm: false
+weight_tying: false
+is_causal: true

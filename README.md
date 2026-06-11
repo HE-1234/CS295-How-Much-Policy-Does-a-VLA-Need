@@ -41,12 +41,31 @@ effect. These numbers are not directly comparable to the original LAPA paper
 because this project fine-tunes pretrained Pythia models rather than
 pretraining a LLaMA backbone from scratch.
 
-See the [progress report](LAPA_torch/LAPA/REPORT.md) for the experiment design,
-results, limitations, and remaining work.
+The repository contains two complementary policy-capacity studies:
+
+1. `vla_foundry/` varies diffusion-policy transformer depth with a frozen
+   Foundry-VLM backbone.
+2. `LAPA_torch/LAPA/` varies the Pythia backbone inside a frozen LAPA
+   representation.
+
+See the [LAPA progress report](LAPA_torch/LAPA/REPORT.md) and the
+[VLA Foundry runbook](vla_foundry/RUNBOOK.md) for experiment-specific results,
+limitations, and remaining work.
 
 ## Repository Guide
 
-All implementation work lives under [`LAPA_torch/LAPA`](LAPA_torch/LAPA):
+### VLA Foundry Policy-Size Study
+
+| Path | Purpose |
+| --- | --- |
+| [`vla_foundry/`](vla_foundry) | VLA Foundry source, tests, documentation, and local policy-size changes |
+| [`RUNBOOK.md`](vla_foundry/RUNBOOK.md) | Policy-depth sweep design, commands, results, and known issues |
+| [`report_questions.md`](vla_foundry/report_questions.md) | Report-oriented interpretation and experiment details |
+| [`scripts/sweep/`](vla_foundry/scripts/sweep) | Dataset, training, validation, and evaluation workflow |
+| [`config_presets/models/`](vla_foundry/vla_foundry/config_presets/models) | 77M, 205M, and 410M transformer configurations |
+| [`experiments/`](vla_foundry/experiments) | Tracked validation summaries only; large data and run outputs are excluded |
+
+### LAPA Backbone-Size Study
 
 | Path | Purpose |
 | --- | --- |

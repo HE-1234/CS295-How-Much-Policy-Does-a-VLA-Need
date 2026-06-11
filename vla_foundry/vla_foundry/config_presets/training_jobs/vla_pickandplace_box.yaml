@@ -1,0 +1,79 @@
+# Single-task chassis for the policy-size ablation on PickAndPlaceBox.
+#
+# Backbone: TRI-ML/Foundry-VLM-1.3B-200M (the pre-VLA VLM-stage release).
+#   Architecturally identical to the backbone bundled inside
+#   TRI-ML/Foundry-VLA-1.7B-full (verified field-by-field), differing only in
+#   the additional gradient steps absorbed during VLA cofinetuning. The native
+#   `vlm_foundry_backbone` loader requires a VLM-stage config_model.yaml next
+#   to the checkpoint; the VLA repo only ships a diffusion_policy
+#   config_model.yaml, so loading its tuned weights cleanly would require a
+#   side extraction script — deferred to a follow-up.
+#
+# Policy transformer: NOT defined here. Override on the CLI per rung with
+#   --model.transformer "include vla_foundry/config_presets/models/<preset>.yaml"
+#   --model.transformer.is_causal False
+# (The repo's `<<: !include` directive cannot partially-override an included
+# block; CLI overrides side-step that limitation cleanly. See README §1.6.)
+#
+# Dataset manifest / statistics: pass on the CLI to keep the YAML
+# user-agnostic, e.g.
+#   --data.dataset_manifest "[$EXP_ROOT/data/PickAndPlaceBox/manifest.jsonl]"
+#   --data.dataset_statistics "[$EXP_ROOT/data/PickAndPlaceBox/stats.json]"
+#
+# PickAndPlaceBox preprocessing config (probed from the public registry):
+#   - 6-camera bimanual rig (lbm_data_camera_names_6cameras.yaml)
+#   - action/proprio fields = lbm_action_fields.yaml (20-dim action,
+#     auto-populated into model.action_dim via init_shared_attributes)
+#   - past=5 / future=19 stored window; we use the smaller 1/8 window below
+#     to match the Foundry-VLA-1.7B-full training config exactly.
+
+model:
+  <<: !include ../models/vla_smolvlm_foundry_backbone.yaml
+  vision_language_backbone:
+    type: vlm_foundry_backbone
+    vlm_experiment_dir: hf://TRI-ML/Foundry-VLM-1.3B-200M
+    resume_from_checkpoint: hf://TRI-ML/Foundry-VLM-1.3B-200M/checkpoints/checkpoint_75.pt
+    freeze: true
+    num_vlm_layers_to_use: 4
+
+data:
+  <<: !include ../data/lbm/lbm_data_params.yaml
+  <<: !include ../data/vla_diffusion.yaml
+  # Override paligemma defaults from vla_diffusion.yaml to match SmolVLM /
+  # Foundry-VLA-1.7B-full training config:
+  processor: HuggingFaceTB/SmolVLM2-256M-Video-Instruct
+  image_size: 224
+  img_num_tokens: 64
+  seq_len: 2048
+  lowdim_past_timesteps: 1
+  lowdim_future_timesteps: 8
+  dataset_manifest:
+    - <SET-ON-CLI>
+  dataset_statistics:
+    - <SET-ON-CLI>
+  dataset_modality:
+    - robotics
+  dataset_weighting:
+    - 1.0
+  camera_names:
+    - scene_right_0
+    - scene_left_0
+    - wrist_left_minus
+    - wrist_left_plus
+    - wrist_right_minus
+    - wrist_right_plus
+  image_indices:
+    - -1
+    - 0
+
+distributed:
+  fsdp: false
+
+hparams:
+  <<: !include ../hparams/diffusion_policy.yaml
+  per_gpu_batch_size: 16
+  global_batch_size: 128
+  lr: 5e-5
+  warmup: "1000"
+  optimizer: adamw
+  lr_scheduler: cosine

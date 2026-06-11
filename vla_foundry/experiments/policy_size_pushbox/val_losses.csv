@@ -1,0 +1,4 @@
+rung,checkpoint,step,val_loss,samples
+transformer_410m,1,312,0.290322,2048
+transformer_205m,1,312,0.300479,2048
+transformer_77m,1,312,0.308910,2048

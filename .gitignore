@@ -1,10 +1,23 @@
-# Existing standalone repository; manage and push it separately.
-/vla_foundry/
-
 # Local agent metadata and preserved nested-repository metadata.
 /.agents/
 /.codex/
 /LAPA_torch/LAPA/.git.lapa-backup/
+/vla_foundry/.git.vla-foundry-backup/
+/vla_foundry/.claude/
+
+# VLA Foundry local environments and generated experiment artifacts.
+/vla_foundry/.venv/
+/vla_foundry/experiments/**/data/
+/vla_foundry/experiments/**/runs/
+/vla_foundry/experiments/**/runs_*/
+/vla_foundry/experiments/**/smoke/
+/vla_foundry/experiments/**/_resolve_check/
+/vla_foundry/experiments/**/checkpoints/
+/vla_foundry/experiments/**/*.pt
+/vla_foundry/experiments/**/*.tar
+/vla_foundry/experiments/**/*.json
+/vla_foundry/experiments/**/*.jsonl
+/vla_foundry/experiments/**/*.log
 
 # Python environments and generated caches.
 **/.venv/

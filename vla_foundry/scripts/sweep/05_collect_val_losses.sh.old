@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Extract every [VAL] line from each rung's training log and tabulate them.
+# Cheap, no Docker, no GPU — just greps the logs that 04_train_rungs.sh wrote.
+
+set -euo pipefail
+cd "$(dirname "$0")/../.."
+source scripts/sweep/env.sh
+cd "${REPO_ROOT}"
+
+OUT="${EXP_ROOT}/val_losses.csv"
+mkdir -p "$(dirname "${OUT}")"
+
+{
+  echo "rung,checkpoint,step,val_loss,samples"
+  for SIZE_PRESET in "${RUNGS[@]}"; do
+    RUN="${EXP_ROOT}/runs/${TASK}_${SIZE_PRESET}_budget-${BUDGET}"
+    # main.py writes the training log under <save_path>/<name>/out.log
+    # (no timestamp subdir because --name is passed explicitly).
+    for LOG in "${RUN}"/policy_size_*/out.log; do
+      [[ -f "${LOG}" ]] || continue
+      grep -E "^\[VAL\]" "${LOG}" | while IFS= read -r line; do
+        ckpt=$(echo "${line}"   | sed -nE 's/.*ckpt=([0-9]+).*/\1/p')
+        step=$(echo "${line}"   | sed -nE 's/.*step=([0-9]+).*/\1/p')
+        loss=$(echo "${line}"   | sed -nE 's/.*avg_loss=([0-9.eE+-]+).*/\1/p')
+        samples=$(echo "${line}"| sed -nE 's/.*samples=([0-9]+).*/\1/p')
+        echo "${SIZE_PRESET},${ckpt},${step},${loss},${samples}"
+      done
+    done
+  done
+} | tee "${OUT}"
+
+echo
+echo "Saved → ${OUT}"
