@@ -1,0 +1,5 @@
+lapa_checkpoints/*
+__pycache__/
+wandb/*
+*.pt
+*.jsonl

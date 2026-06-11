@@ -1,0 +1,36 @@
+# Existing standalone repository; manage and push it separately.
+/vla_foundry/
+
+# Local agent metadata and preserved nested-repository metadata.
+/.agents/
+/.codex/
+/LAPA_torch/LAPA/.git.lapa-backup/
+
+# Python environments and generated caches.
+**/.venv/
+**/venv/
+**/env/
+**/__pycache__/
+*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ipynb_checkpoints/
+*.egg-info/
+
+# Experiment tracking and generated outputs.
+**/wandb/
+**/results/
+**/checkpoints/
+**/lapa_checkpoints/
+*.pt
+
+# Large generated model/data artifacts.
+*.npz
+/LAPA_torch/LAPA/data/latent_action_pretraining_openx.jsonl
+
+# Local editor and OS files.
+.DS_Store
+temp.txt
+*.swp
+*.swo
+*~
